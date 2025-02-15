@@ -2,9 +2,8 @@ python-dotenv
 openai
 pyupbit
 pyjwt
-numpy==1.23.5
-pandas==1.5.3
-pandas-ta==0.3.14b
+pandas
+pandas-ta
 schedule
 streamlit
 selenium
