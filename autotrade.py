@@ -216,7 +216,9 @@ def fetch_fear_and_greed_index(limit=1, date_format=''):
     return resStr
 
 def get_current_base64_image():
-    screenshot_path = "screenshot.png"
+    screenshot_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "screenshots", "screenshot.png")
+    # 디렉토리 존재 확인
+    os.makedirs(os.path.dirname(screenshot_path), exist_ok=True)
     try:
         # Set up Chrome options for headless mode
         chrome_options = webdriver.ChromeOptions()
