@@ -17,8 +17,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import base64
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
 
 # Setup
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -218,18 +216,21 @@ def fetch_fear_and_greed_index(limit=1, date_format=''):
     return resStr
 
 def get_current_base64_image():
-    # 절대 경로 사용
-    screenshot_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "screenshot.png")
+    screenshot_path = "screenshot.png"
     try:
-        # Chrome 옵션 설정
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
+        # Set up Chrome options for headless mode
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--window-size=1920x1080")
 
-        # WebDriver 초기화
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-        
+        service = Service('/usr/local/bin/chromedriver')  # Specify the path to the ChromeDriver executable
+
+        # Initialize the WebDriver with the specified options
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+
         # Navigate to the desired webpage
         driver.get("https://upbit.com/full_chart?code=CRIX.UPBIT.KRW-BTC")
 
@@ -258,24 +259,16 @@ def get_current_base64_image():
         macd_indicator = wait.until(EC.element_to_be_clickable((By.XPATH, "//cq-item[translate[@original='MACD']]")))
         macd_indicator.click()
 
-        # 스크린샷 저장 전에 디렉토리 권한 확인
-        directory = os.path.dirname(screenshot_path)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            
+        # Take a screenshot to verify the actions
         driver.save_screenshot(screenshot_path)
     except Exception as e:
         print(f"Error making current image: {e}")
         return ""
     finally:
-        if 'driver' in locals():
-            driver.quit()
-        try:
-            with open(screenshot_path, "rb") as image_file:
-                return base64.b64encode(image_file.read()).decode('utf-8')
-        except Exception as e:
-            print(f"Error reading screenshot: {e}")
-            return ""
+        # Close the browser
+        driver.quit()
+        with open(screenshot_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
 
 def get_instructions(file_path):
     try:
