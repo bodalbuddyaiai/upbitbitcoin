@@ -16,11 +16,10 @@ def load_data():
 def main():
     st.set_page_config(layout="wide")
     st.title("실시간 비트코인 GPT 자동매매 기록")
-    st.write("by 유튜버 [조코딩](https://youtu.be/MgatVqXXoeA) - [Github](https://github.com/youtube-jocoding/gpt-bitcoin)")
     st.write("---")
     df = load_data()
     if not df.empty:
-        start_value = 2000000
+        start_value = 50000
         current_price = pyupbit.get_orderbook(ticker="KRW-BTC")['orderbook_units'][0]["ask_price"]
         latest_row = df.iloc[-1]
         btc_balance = latest_row['btc_balance']
