@@ -226,7 +226,7 @@ def get_current_base64_image():
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--window-size=1920x1080")
 
-        service = Service('/usr/local/bin/chromedriver')  # Specify the path to the ChromeDriver executable
+        service = Service('/usr/bin/chromedriver')  # Specify the path to the ChromeDriver executable
 
         # Initialize the WebDriver with the specified options
         driver = webdriver.Chrome(service=service, options=chrome_options)
