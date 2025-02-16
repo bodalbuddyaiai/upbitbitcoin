@@ -218,7 +218,8 @@ def fetch_fear_and_greed_index(limit=1, date_format=''):
     return resStr
 
 def get_current_base64_image():
-    screenshot_path = "screenshot.png"
+    # 절대 경로 사용
+    screenshot_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "screenshot.png")
     try:
         # Chrome 옵션 설정
         chrome_options = Options()
@@ -257,17 +258,24 @@ def get_current_base64_image():
         macd_indicator = wait.until(EC.element_to_be_clickable((By.XPATH, "//cq-item[translate[@original='MACD']]")))
         macd_indicator.click()
 
-        # Take a screenshot to verify the actions
+        # 스크린샷 저장 전에 디렉토리 권한 확인
+        directory = os.path.dirname(screenshot_path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            
         driver.save_screenshot(screenshot_path)
     except Exception as e:
         print(f"Error making current image: {e}")
         return ""
     finally:
-        # driver가 존재할 경우에만 종료
         if 'driver' in locals():
             driver.quit()
-        with open(screenshot_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
+        try:
+            with open(screenshot_path, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        except Exception as e:
+            print(f"Error reading screenshot: {e}")
+            return ""
 
 def get_instructions(file_path):
     try:
