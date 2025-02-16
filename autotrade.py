@@ -217,20 +217,29 @@ def fetch_fear_and_greed_index(limit=1, date_format=''):
 
 def get_current_base64_image():
     screenshot_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "screenshots", "screenshot.png")
-    # 디렉토리 존재 확인
-    os.makedirs(os.path.dirname(screenshot_path), exist_ok=True)
     try:
-        # Set up Chrome options for headless mode
+        # 디렉토리 생성 확인
+        screenshot_dir = os.path.dirname(screenshot_path)
+        if not os.path.exists(screenshot_dir):
+            os.makedirs(screenshot_dir, exist_ok=True)
+            os.chmod(screenshot_dir, 0o755)
+        
+        # Chrome 옵션 설정
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--window-size=1920x1080")
-
-        service = Service('/usr/bin/chromedriver')  # Specify the path to the ChromeDriver executable
-
-        # Initialize the WebDriver with the specified options
+        
+        # 운영체제별 설정
+        if os.name == 'nt':  # Windows
+            from webdriver_manager.chrome import ChromeDriverManager
+            service = Service(ChromeDriverManager().install())
+        else:  # Linux
+            chrome_options.add_argument(f"--display={os.environ.get('DISPLAY', ':99')}")
+            service = Service('/usr/bin/chromedriver')
+            
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
         # Navigate to the desired webpage
